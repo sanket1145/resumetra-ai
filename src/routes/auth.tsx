@@ -53,17 +53,23 @@ function AuthPage() {
     setBusy(true);
     try {
       if (mode === "signup") {
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
             emailRedirectTo: `${window.location.origin}${target}`,
-            data: { full_name: fullName },
+            data: { name: fullName, full_name: fullName },
           },
         });
         if (error) throw error;
-        toast.success("Account created. You are signed in.");
+        if (data.session) {
+          toast.success("Account created. You are signed in.");
+        } else {
+          setPendingEmail(email);
+          toast.success("Account created. Check your inbox to confirm your email address.");
+        }
       } else {
+
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         toast.success("Welcome back.");
