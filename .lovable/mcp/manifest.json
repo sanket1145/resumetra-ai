@@ -1,0 +1,174 @@
+{
+  "version": 1,
+  "sdk_version": "0.28.0",
+  "path": "/mcp",
+  "auth": {
+    "type": "oauth",
+    "issuer": "https://hibfnxdworiupezkmlnl.supabase.co/auth/v1",
+    "accepted_audiences": [
+      "authenticated"
+    ]
+  },
+  "mcp": {
+    "server": {
+      "name": "resume-matcher-pro",
+      "version": "0.1.0",
+      "title": "Resume Matcher Pro"
+    },
+    "tools": [
+      {
+        "name": "list_resumes",
+        "title": "List resumes",
+        "description": "List the signed-in user's uploaded resumes with their ids, file names and candidate names.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50,
+              "default": 20,
+              "description": "Maximum number of resumes to return."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "add_resume_text",
+        "title": "Add a resume from text",
+        "description": "Store a resume from plain text for the signed-in user, parse contact details, sections and technical skills, and return the parsed result with the new resume id.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "fileName": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 255,
+              "description": "A label for this resume, e.g. 'my-resume.pdf'."
+            },
+            "text": {
+              "type": "string",
+              "minLength": 50,
+              "maxLength": 200000,
+              "description": "The full plain-text resume content."
+            }
+          },
+          "required": [
+            "fileName",
+            "text"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "match_resume_to_job",
+        "title": "Match a resume to a job description",
+        "description": "Score one of the user's stored resumes against a pasted job description, save the analysis, and return the match score, matching skills, missing skills, strengths and suggestions.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "resumeId": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Resume id from list_resumes."
+            },
+            "jobDescription": {
+              "type": "string",
+              "minLength": 40,
+              "maxLength": 60000,
+              "description": "Full job description text."
+            },
+            "title": {
+              "type": "string",
+              "maxLength": 160,
+              "description": "Job title, if known."
+            },
+            "company": {
+              "type": "string",
+              "maxLength": 160,
+              "description": "Company name, if known."
+            }
+          },
+          "required": [
+            "resumeId",
+            "jobDescription"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_analyses",
+        "title": "List analyses",
+        "description": "List the signed-in user's resume-to-job match analyses, newest first, with match scores.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50,
+              "default": 20,
+              "description": "Maximum number of analyses to return."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_analysis",
+        "title": "Get analysis report",
+        "description": "Fetch one full analysis report by id: match score, matching and missing skills, strengths, suggestions and the score breakdown.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "analysisId": {
+              "type": "string",
+              "format": "uuid",
+              "description": "The analysis id from list_analyses."
+            }
+          },
+          "required": [
+            "analysisId"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
