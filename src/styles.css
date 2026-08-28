@@ -167,5 +167,37 @@
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
   }
 }
+
+@utility panel {
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-border);
+  background-color: var(--color-card);
+  box-shadow: var(--shadow-card);
+}
+
+@utility section-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-muted-foreground);
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}
+
