@@ -41,6 +41,7 @@ function AuthPage() {
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [busy, setBusy] = useState(false);
+  const [pendingEmail, setPendingEmail] = useState<string | null>(null);
 
   const target = redirect && redirect.startsWith("/") ? redirect : "/dashboard";
 
@@ -89,6 +90,16 @@ function AuthPage() {
       <p className="mt-2 text-sm text-muted-foreground">
         Your resumes, job descriptions and analyses stay private to your account.
       </p>
+
+      {pendingEmail ? (
+        <div className="panel mt-6 border-primary/30 bg-accent p-5 text-sm">
+          <p className="font-medium text-accent-foreground">Confirm your email</p>
+          <p className="mt-1 text-muted-foreground">
+            We sent a confirmation link to {pendingEmail}. Open it to activate your account, then sign in
+            here.
+          </p>
+        </div>
+      ) : null}
 
       <form onSubmit={submit} className="panel mt-6 space-y-4 p-6">
         {mode === "signup" ? (
