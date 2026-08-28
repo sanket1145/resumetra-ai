@@ -58,7 +58,7 @@ async function extractPdf(buffer: ArrayBuffer): Promise<string> {
     if (line.trim()) lines.push(line.trim());
     pages.push(lines.filter(Boolean).join("\n"));
   }
-  await doc.destroy();
+  await (doc as unknown as { destroy: () => Promise<void> }).destroy();
   return pages.join("\n\n");
 }
 
