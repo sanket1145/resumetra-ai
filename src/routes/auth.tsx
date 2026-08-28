@@ -75,23 +75,6 @@ function AuthPage() {
     }
   }
 
-  async function signInWithGoogle() {
-    setBusy(true);
-    try {
-      const { lovable } = await import("@/integrations/lovable/index");
-      const result = await lovable.auth.signInWithOAuth("google", {
-        redirect_uri: window.location.origin,
-      });
-      if (result.error) throw new Error(result.error.message ?? "Google sign-in failed.");
-      if (result.redirected) return;
-      void navigate({ to: target, replace: true });
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Google sign-in failed.");
-    } finally {
-      setBusy(false);
-    }
-  }
-
   return (
     <div className="mx-auto flex max-w-md flex-col px-4 py-16">
       <h1 className="text-2xl font-semibold">
@@ -142,22 +125,6 @@ function AuthPage() {
         <Button type="submit" className="w-full" disabled={busy}>
           {busy ? <Loader2 className="size-4 animate-spin" /> : null}
           {mode === "signin" ? "Sign in" : "Create account"}
-        </Button>
-
-        <div className="flex items-center gap-3 text-xs text-muted-foreground">
-          <span className="h-px flex-1 bg-border" />
-          or
-          <span className="h-px flex-1 bg-border" />
-        </div>
-
-        <Button
-          type="button"
-          variant="outline"
-          className="w-full"
-          disabled={busy}
-          onClick={() => void signInWithGoogle()}
-        >
-          Continue with Google
         </Button>
 
         <p className="text-center text-sm text-muted-foreground">
