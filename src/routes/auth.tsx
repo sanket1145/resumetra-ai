@@ -46,8 +46,16 @@ function AuthPage() {
   const target = redirect && redirect.startsWith("/") ? redirect : "/dashboard";
 
   useEffect(() => {
-    if (!loading && user) void navigate({ to: target, replace: true });
+    if (loading || !user) return;
+    // Targets carrying a query string (e.g. the OAuth consent URL) need a full
+    // navigation so the search params survive.
+    if (target.includes("?")) {
+      window.location.assign(target);
+      return;
+    }
+    void navigate({ to: target, replace: true });
   }, [loading, user, navigate, target]);
+
 
   async function submit(event: React.FormEvent) {
     event.preventDefault();
