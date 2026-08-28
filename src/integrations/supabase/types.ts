@@ -14,7 +14,229 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      analyses: {
+        Row: {
+          created_at: string
+          extra_skills: Json
+          id: string
+          job_id: string
+          llm_summary: string | null
+          match_score: number
+          matching_skills: Json
+          missing_skills: Json
+          resume_id: string
+          score_breakdown: Json
+          strengths: Json
+          suggestion_source: string
+          suggestions: Json
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          extra_skills?: Json
+          id?: string
+          job_id: string
+          llm_summary?: string | null
+          match_score?: number
+          matching_skills?: Json
+          missing_skills?: Json
+          resume_id: string
+          score_breakdown?: Json
+          strengths?: Json
+          suggestion_source?: string
+          suggestions?: Json
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          extra_skills?: Json
+          id?: string
+          job_id?: string
+          llm_summary?: string | null
+          match_score?: number
+          matching_skills?: Json
+          missing_skills?: Json
+          resume_id?: string
+          score_breakdown?: Json
+          strengths?: Json
+          suggestion_source?: string
+          suggestions?: Json
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "analyses_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "job_descriptions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "analyses_resume_id_fkey"
+            columns: ["resume_id"]
+            isOneToOne: false
+            referencedRelation: "resumes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      job_descriptions: {
+        Row: {
+          company: string | null
+          created_at: string
+          description: string
+          id: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          company?: string | null
+          created_at?: string
+          description: string
+          id?: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          company?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      job_skills: {
+        Row: {
+          id: string
+          importance: string
+          job_id: string
+          skill_category: string
+          skill_name: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          importance?: string
+          job_id: string
+          skill_category: string
+          skill_name: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          importance?: string
+          job_id?: string
+          skill_category?: string
+          skill_name?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_skills_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "job_descriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: string
+          name: string | null
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id: string
+          name?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string | null
+        }
+        Relationships: []
+      }
+      resume_skills: {
+        Row: {
+          id: string
+          resume_id: string
+          skill_category: string
+          skill_name: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          resume_id: string
+          skill_category: string
+          skill_name: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          resume_id?: string
+          skill_category?: string
+          skill_name?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "resume_skills_resume_id_fkey"
+            columns: ["resume_id"]
+            isOneToOne: false
+            referencedRelation: "resumes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      resumes: {
+        Row: {
+          candidate_email: string | null
+          candidate_name: string | null
+          candidate_phone: string | null
+          created_at: string
+          extracted_text: string
+          file_name: string
+          file_size: number
+          file_type: string
+          id: string
+          sections: Json
+          user_id: string
+        }
+        Insert: {
+          candidate_email?: string | null
+          candidate_name?: string | null
+          candidate_phone?: string | null
+          created_at?: string
+          extracted_text: string
+          file_name: string
+          file_size?: number
+          file_type?: string
+          id?: string
+          sections?: Json
+          user_id: string
+        }
+        Update: {
+          candidate_email?: string | null
+          candidate_name?: string | null
+          candidate_phone?: string | null
+          created_at?: string
+          extracted_text?: string
+          file_name?: string
+          file_size?: number
+          file_type?: string
+          id?: string
+          sections?: Json
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
