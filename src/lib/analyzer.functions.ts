@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import type { Json } from "@/integrations/supabase/types";
 import { parseResume } from "./nlp/resumeParser";
 import { parseJobDescription } from "./nlp/jobParser";
 import { matchResumeToJob } from "./nlp/matcher";
@@ -30,7 +31,7 @@ export const analyzeResume = createServerFn({ method: "POST" })
         candidate_name: parsed.name,
         candidate_email: parsed.email,
         candidate_phone: parsed.phone,
-        sections: parsed.sections,
+        sections: parsed.sections as unknown as Json,
       })
       .select("id")
       .single();
@@ -167,12 +168,12 @@ export const matchResume = createServerFn({ method: "POST" })
         resume_id: resume.id,
         job_id: job.id,
         match_score: result.matchScore,
-        matching_skills: result.matchingSkills,
-        missing_skills: result.missingSkills,
-        extra_skills: result.extraSkills,
+        matching_skills: result.matchingSkills as unknown as Json,
+        missing_skills: result.missingSkills as unknown as Json,
+        extra_skills: result.extraSkills as unknown as Json,
         strengths: result.strengths,
         suggestions,
-        score_breakdown: result.breakdown,
+        score_breakdown: result.breakdown as unknown as Json,
         suggestion_source: suggestionSource,
         llm_summary: llmSummary,
       })
