@@ -25,7 +25,7 @@ export const Route = createFileRoute("/_authenticated/analysis/$id")({
       { name: "robots", content: "noindex" },
     ],
   }),
-  component: AnalysisDetail;
+  component: AnalysisDetail,
 });
 
 function AnalysisDetail() {
