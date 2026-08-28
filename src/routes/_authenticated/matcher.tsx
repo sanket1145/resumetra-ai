@@ -91,6 +91,12 @@ function Matcher() {
     }
   }
 
+  const requiredSkills = (preview?.skills ?? [])
+    .filter((skill) => skill.importance === "required")
+    .map((skill) => skill.name);
+  const preferredSkills = (preview?.skills ?? [])
+    .filter((skill) => skill.importance === "preferred")
+    .map((skill) => skill.name);
   const noResumes = resumes.data && resumes.data.length === 0;
 
   return (
@@ -208,17 +214,25 @@ function Matcher() {
           ) : (
             <div className="mt-5 space-y-5">
               <div>
-                <h3 className="section-label">Required ({preview.requiredSkills.length})</h3>
+                <h3 className="section-label">Required ({requiredSkills.length})</h3>
                 <div className="mt-2">
-                  <SkillTagList skills={preview.requiredSkills.map((s) => s.name)} tone="neutral" />
+                  <SkillTagList skills={requiredSkills} tone="neutral" />
                 </div>
               </div>
               <div>
-                <h3 className="section-label">Preferred ({preview.preferredSkills.length})</h3>
+                <h3 className="section-label">Preferred ({preferredSkills.length})</h3>
                 <div className="mt-2">
-                  <SkillTagList skills={preview.preferredSkills.map((s) => s.name)} tone="preferred" />
+                  <SkillTagList skills={preferredSkills} tone="preferred" />
                 </div>
               </div>
+              {preview.keywords.length > 0 ? (
+                <div>
+                  <h3 className="section-label">Other keywords</h3>
+                  <div className="mt-2">
+                    <SkillTagList skills={preview.keywords} tone="neutral" />
+                  </div>
+                </div>
+              ) : null}
             </div>
           )}
         </aside>
