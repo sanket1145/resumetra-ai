@@ -27,7 +27,7 @@ export const Route = createFileRoute("/_authenticated/analyzer")({
       },
     ],
   }),
-  component: Analyzer;
+  component: Analyzer,
 });
 
 type Result = { resumeId: string; parsed: ParsedResume };
