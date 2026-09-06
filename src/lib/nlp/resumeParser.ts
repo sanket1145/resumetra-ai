@@ -20,7 +20,7 @@ export interface ParsedResume {
 }
 
 const EMAIL_RE = /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/;
-const PHONE_RE = /(?:\+?\d{1,3}[\s-]?)?(?:\(?\d{3,5}\)?[\s-]?)\d{3}[\s-]?\d{3,4}/;
+const PHONE_RE = /(?:\+?\d{1,3}[\s.-]?)?(?:\(\d{2,5}\)|\d{2,5})[\s.-]?\d{3,5}[\s.-]?\d{0,5}/g;
 const LINK_RE = /(?:https?:\/\/)?(?:www\.)?(?:github|linkedin|gitlab|kaggle)\.com\/[A-Za-z0-9._/-]+/gi;
 
 const SECTION_HEADINGS: Array<{ key: keyof ResumeSections; patterns: string[] }> = [
