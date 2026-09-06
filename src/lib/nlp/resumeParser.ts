@@ -24,48 +24,133 @@ const PHONE_RE = /(?:\+?\d{1,3}[\s-]?)?(?:\(?\d{3,5}\)?[\s-]?)\d{3}[\s-]?\d{3,4}
 const LINK_RE = /(?:https?:\/\/)?(?:www\.)?(?:github|linkedin|gitlab|kaggle)\.com\/[A-Za-z0-9._/-]+/gi;
 
 const SECTION_HEADINGS: Array<{ key: keyof ResumeSections; patterns: string[] }> = [
-  { key: "summary", patterns: ["summary", "objective", "profile", "about me"] },
-  { key: "education", patterns: ["education", "academic", "qualification"] },
+  {
+    key: "summary",
+    patterns: [
+      "summary",
+      "professional summary",
+      "career summary",
+      "executive summary",
+      "summary of qualifications",
+      "objective",
+      "career objective",
+      "professional objective",
+      "profile",
+      "professional profile",
+      "career profile",
+      "about me",
+      "about",
+      "overview",
+      "professional overview",
+      "personal statement",
+    ],
+  },
+  {
+    key: "education",
+    patterns: ["education", "educational background", "academic", "academics", "qualification", "qualifications"],
+  },
   {
     key: "experience",
-    patterns: ["experience", "employment", "work history", "internship", "internships"],
+    patterns: [
+      "experience",
+      "professional experience",
+      "work experience",
+      "employment",
+      "employment history",
+      "work history",
+      "internship",
+      "internships",
+      "internship experience",
+    ],
   },
-  { key: "projects", patterns: ["projects", "project work", "academic projects"] },
+  { key: "projects", patterns: ["projects", "project work", "academic projects", "personal projects", "key projects"] },
   {
     key: "certifications",
-    patterns: ["certification", "certifications", "courses", "licenses", "achievements"],
+    patterns: [
+      "certification",
+      "certifications",
+      "courses",
+      "coursework",
+      "licenses",
+      "achievements",
+      "awards",
+      "honors",
+      "training",
+    ],
   },
 ];
 
-const ALL_HEADING_WORDS = SECTION_HEADINGS.flatMap((section) => section.patterns).concat([
+const OTHER_HEADING_WORDS = [
   "skills",
   "technical skills",
+  "core competencies",
+  "competencies",
   "languages",
+  "tools",
+  "technologies",
   "interests",
   "hobbies",
+  "extracurricular",
+  "activities",
   "declaration",
   "references",
+  "publications",
   "contact",
-]);
+  "contact details",
+  "personal details",
+  "volunteer experience",
+];
+
+/**
+ * A line is treated as a heading only when it looks like one: short, not a
+ * sentence, and either fully upper case, title case, or ending in a colon.
+ */
+function looksLikeHeading(line: string): boolean {
+  const trimmed = line.trim();
+  if (!trimmed || trimmed.length > 45) return false;
+  const words = trimmed.replace(/[:\-–—|]+$/g, "").trim().split(/\s+/);
+  if (words.length > 5) return false;
+  if (/[.,;]$/.test(trimmed)) return false;
+  const letters = trimmed.replace(/[^A-Za-z]/g, "");
+  if (letters.length < 3) return false;
+  const isUpper = letters === letters.toUpperCase();
+  const isTitleCase = words.every((word) => !/^[a-z]/.test(word));
+  return isUpper || isTitleCase || /[:]$/.test(trimmed);
+}
+
+function matchesPattern(cleaned: string, pattern: string): boolean {
+  if (cleaned === pattern) return true;
+  // Boundary-aware containment so "professional summary" and
+  // "career objective" both resolve to the summary section.
+  return new RegExp(`(^|[^a-z])${pattern.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}([^a-z]|$)`).test(cleaned);
+}
 
 function headingKeyFor(line: string): keyof ResumeSections | "other" | null {
+  if (!looksLikeHeading(line)) return null;
   const cleaned = line
     .replace(/[^A-Za-z& ]/g, " ")
     .replace(/\s+/g, " ")
     .trim()
     .toLowerCase();
-  if (!cleaned || cleaned.length > 40) return null;
+  if (!cleaned || cleaned.length > 45) return null;
 
+  // Longer, more specific patterns win (e.g. "work experience" over "work").
+  let best: { key: keyof ResumeSections | "other"; length: number } | null = null;
   for (const section of SECTION_HEADINGS) {
-    if (section.patterns.some((pattern) => cleaned === pattern || cleaned.startsWith(pattern))) {
-      return section.key;
+    for (const pattern of section.patterns) {
+      if (matchesPattern(cleaned, pattern) && (!best || pattern.length > best.length)) {
+        best = { key: section.key, length: pattern.length };
+      }
     }
   }
-  if (ALL_HEADING_WORDS.some((word) => cleaned === word || cleaned.startsWith(word))) {
-    return "other";
+  for (const word of OTHER_HEADING_WORDS) {
+    if (matchesPattern(cleaned, word) && (!best || word.length > best.length)) {
+      best = { key: "other", length: word.length };
+    }
   }
-  return null;
+  return best ? best.key : null;
 }
+
 
 /** Splits the resume into recognised sections using heading detection. */
 export function extractSections(text: string): ResumeSections {
