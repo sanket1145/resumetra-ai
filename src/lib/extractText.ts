@@ -37,30 +37,44 @@ async function extractPdf(buffer: ArrayBuffer): Promise<string> {
   const workerUrl = (await import("pdfjs-dist/build/pdf.worker.min.mjs?url")).default;
   pdfjs.GlobalWorkerOptions.workerSrc = workerUrl;
 
-  const doc = await pdfjs.getDocument({ data: new Uint8Array(buffer) }).promise;
+  const loadingTask = pdfjs.getDocument({ data: new Uint8Array(buffer) });
+  const doc = await loadingTask.promise;
   const pages: string[] = [];
-  for (let pageNumber = 1; pageNumber <= doc.numPages; pageNumber += 1) {
-    const page = await doc.getPage(pageNumber);
-    const content = await page.getTextContent();
-    let lastY: number | null = null;
-    let line = "";
-    const lines: string[] = [];
-    for (const item of content.items) {
-      if (!("str" in item)) continue;
-      const y = item.transform[5] as number;
-      if (lastY !== null && Math.abs(y - lastY) > 2) {
-        lines.push(line.trim());
-        line = "";
+  try {
+    for (let pageNumber = 1; pageNumber <= doc.numPages; pageNumber += 1) {
+      const page = await doc.getPage(pageNumber);
+      const content = await page.getTextContent();
+      let lastY: number | null = null;
+      let line = "";
+      const lines: string[] = [];
+      for (const item of content.items) {
+        if (!("str" in item)) continue;
+        const y = item.transform[5] as number;
+        if (lastY !== null && Math.abs(y - lastY) > 2) {
+          lines.push(line.trim());
+          line = "";
+        }
+        line += item.str + (item.hasEOL ? " " : "");
+        lastY = y;
       }
-      line += item.str + (item.hasEOL ? " " : "");
-      lastY = y;
+      if (line.trim()) lines.push(line.trim());
+      pages.push(lines.filter(Boolean).join("\n"));
     }
-    if (line.trim()) lines.push(line.trim());
-    pages.push(lines.filter(Boolean).join("\n"));
+  } finally {
+    // Different pdf.js builds expose cleanup on the document or on the
+    // loading task; both are optional, so never let this break extraction.
+    try {
+      const destroyable = loadingTask as unknown as { destroy?: () => Promise<void> };
+      const docDestroyable = doc as unknown as { destroy?: () => Promise<void> };
+      if (typeof docDestroyable.destroy === "function") await docDestroyable.destroy();
+      else if (typeof destroyable.destroy === "function") await destroyable.destroy();
+    } catch {
+      /* ignore cleanup failures */
+    }
   }
-  await (doc as unknown as { destroy: () => Promise<void> }).destroy();
   return pages.join("\n\n");
 }
+
 
 async function extractDocx(buffer: ArrayBuffer): Promise<string> {
   const mammoth = await import("mammoth/mammoth.browser.js");
@@ -76,11 +90,13 @@ export async function extractResumeText(file: File): Promise<{ text: string; typ
   let text = "";
   try {
     text = type === "pdf" ? await extractPdf(buffer) : await extractDocx(buffer);
-  } catch {
+  } catch (error) {
+    console.error("Document extraction failed", error);
     throw new ExtractionError(
       "Unable to extract readable text from this document. Please upload a text-based PDF or DOCX resume.",
     );
   }
+
 
   if (text.replace(/\s+/g, "").length < 100) {
     throw new ExtractionError(
