@@ -76,11 +76,13 @@ export async function extractResumeText(file: File): Promise<{ text: string; typ
   let text = "";
   try {
     text = type === "pdf" ? await extractPdf(buffer) : await extractDocx(buffer);
-  } catch {
+  } catch (error) {
+    console.error("Document extraction failed", error);
     throw new ExtractionError(
       "Unable to extract readable text from this document. Please upload a text-based PDF or DOCX resume.",
     );
   }
+
 
   if (text.replace(/\s+/g, "").length < 100) {
     throw new ExtractionError(
