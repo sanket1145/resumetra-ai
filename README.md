@@ -50,4 +50,4 @@ npm run dev
 
 Open http://localhost:8080. Copy the six values from the project's `.env` file if it isn't present after cloning.
 
-Full instructions, including the MySQL + Python option, are in [RUNNING_LOCALLY.md](RUNNING_LOCALLY.md).
+Full step-by-step local setup, including the local MySQL database, is in [RUNNING_LOCALLY.md](RUNNING_LOCALLY.md).
