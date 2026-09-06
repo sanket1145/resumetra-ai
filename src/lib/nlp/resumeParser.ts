@@ -196,6 +196,18 @@ function guessName(text: string, email: string | null): string | null {
   return null;
 }
 
+/** Finds the first plausible phone number (10-15 digits, common separators). */
+function findPhone(text: string): string | null {
+  const candidates = text.match(PHONE_RE) ?? [];
+  for (const candidate of candidates) {
+    const digits = candidate.replace(/\D/g, "");
+    if (digits.length >= 10 && digits.length <= 15) return candidate.trim().replace(/^[-–—|:,\s]+/, "");
+  }
+  return null;
+}
+
+
+
 export function parseResume(rawText: string): ParsedResume {
   const text = normalizeWhitespace(rawText);
   const email = text.match(EMAIL_RE)?.[0] ?? null;
