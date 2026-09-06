@@ -200,10 +200,11 @@ export function parseResume(rawText: string): ParsedResume {
   const text = normalizeWhitespace(rawText);
   const email = text.match(EMAIL_RE)?.[0] ?? null;
 
-  // Strip links first so profile URLs containing digits aren't read as phones.
-  const withoutLinks = text.replace(LINK_RE, " ");
-  const phoneMatch = withoutLinks.match(PHONE_RE)?.[0] ?? null;
-  const phone = phoneMatch && phoneMatch.replace(/\D/g, "").length >= 10 ? phoneMatch.trim() : null;
+  // Strip links and email addresses first so digits inside them aren't read as
+  // phone numbers, then look for any candidate run of 10-15 digits.
+  const withoutLinks = text.replace(LINK_RE, " ").replace(/[\w.+-]+@[\w.-]+/g, " ");
+  const phone = findPhone(withoutLinks);
+
 
   return {
     name: guessName(text, email),
